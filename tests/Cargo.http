@@ -1,0 +1,38 @@
+### Добавление контейнера
+POST {{host}}/api/cargo
+Content-Type: application/json
+
+{
+  "title": "Контейнер №1",
+  "item": [
+    {"title": "Товар №1"},
+    {"title": "Товар №2"},
+    {"title": "Товар №3"},
+    {"title": "Товар №4"},
+    {"title": "Товар №5"},
+    {"title": "Товар №6"},
+    {"title": "Товар №7"},
+    {"title": "Товар №8"},
+    {"title": "Товар №9"},
+    {"title": "Товар №10"}
+  ]
+}
+
+### Получение списка
+
+GET {{host}}/api/cargo
+Content-Type: application/json
+
+> {% client.global.set("id", response.body[0].id); %}
+
+### Получение контейнера
+
+GET {{host}}/api/cargo/{{id}}
+Content-Type: application/json
+
+### Поиск контейнеров
+
+GET {{host}}/api/cargo/findUnique
+Content-Type: application/json
+
+###
