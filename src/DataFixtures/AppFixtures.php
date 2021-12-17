@@ -5,16 +5,16 @@ namespace App\DataFixtures;
 use App\Entity\Cargo;
 use App\Entity\CargoItem;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Exception;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class AppFixtures extends Fixture
 {
-    protected $cargoNumber = 1000;
-    protected $itemInOneCargo = 10;
-    protected $uniqueItem = 100;
+    protected int $cargoNumber = 1000;
+    protected int $itemInOneCargo = 10;
+    protected int $uniqueItem = 100;
 
     /**
      * @param ObjectManager $manager
@@ -27,7 +27,7 @@ class AppFixtures extends Fixture
         $uniqueItemAllLeft = $uniqueItemAll - $this->uniqueItem;
         $uniqueArray = [];
         for ($i = 0; $i < $this->uniqueItem; $i++) {
-            $uniqueValue = random_int(1, $uniqueItemAllLeft < 1 ? 1 : $uniqueItemAllLeft);
+            $uniqueValue = random_int(1, max($uniqueItemAllLeft, 1));
             $uniqueArray[$i] = $uniqueValue;
             $uniqueItemAllLeft -= $uniqueValue;
         }
@@ -57,6 +57,7 @@ class AppFixtures extends Fixture
             $manager->clear();
         }
         $progressBar->finish();
+        $output->writeln(' OK');
     }
 
     /**
@@ -79,7 +80,7 @@ class AppFixtures extends Fixture
             foreach ($uniqueItemId as $key) {
                 $itemValue = 1;
                 if (1 !== $uniqueArray[$key]) {
-                    $maxValue = $uniqueArray[$key] > $cargoItemRandomLeft ? $cargoItemRandomLeft : $uniqueArray[$key];
+                    $maxValue = min($uniqueArray[$key], $cargoItemRandomLeft);
                     $itemValue = ($maxValue > 1) ? random_int(1, $maxValue) : 1;
                     $cargoItemRandomLeft -= $itemValue;
                 }

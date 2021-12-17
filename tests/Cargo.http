@@ -23,12 +23,24 @@ Content-Type: application/json
 GET {{host}}/api/cargo
 Content-Type: application/json
 
-> {% client.global.set("id", response.body[0].id); %}
+> {% client.global.set("id", response.body[0]['id']); %}
 
 ### Получение контейнера
 
 GET {{host}}/api/cargo/{{id}}
 Content-Type: application/json
+
+### Попытка получения несуществующего контейнера
+
+GET {{host}}/api/cargo/-1
+Content-Type: application/json
+
+> {%
+ client.test("Request executed successfully", function() {
+     client.assert(response.status === 404, "Response status is not 404");
+ });
+
+ %}
 
 ### Поиск контейнеров
 

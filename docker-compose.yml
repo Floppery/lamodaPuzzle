@@ -1,0 +1,74 @@
+version: '3.7'
+services:
+    nginx:
+        hostname: 'nginx'
+        container_name: 'LamodaPuzzle_nginx'
+        #        command: ["sh", "-c", "tail -f /dev/null"]
+        build:
+            context: ./
+            dockerfile: ./_docker/nginx/Dockerfile
+        volumes:
+            - ./:/app:cached
+            - ./_docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./_docker/nginx/sites/:/etc/nginx/sites-enabled
+            - ./_docker/nginx/conf.d/:/etc/nginx/conf.d
+            - ./var/log/nginx:/var/log/nginx
+        depends_on:
+            - php
+        ports:
+            - "8080:80"
+    
+    php:
+        hostname: 'php'
+        container_name: 'LamodaPuzzle_php'
+        build:
+            context: ./
+            dockerfile: ./_docker/php-fpm/Dockerfile
+            args:
+                APP_ENV: ${APP_ENV}
+                PHP_XDEBUG_MODE: ${PHP_XDEBUG_MODE}
+                PHP_XDEBUG_CLIENT_PORT: ${PHP_XDEBUG_CLIENT_PORT}
+                PHP_XDEBUG_CLIENT_HOST: ${PHP_XDEBUG_CLIENT_HOST}
+#        command: ["sh", "-c", "tail -f /dev/null"]
+        restart: always
+        environment:
+            PHP_IDE_CONFIG: "serverName=Docker"
+            APP_ENV: '${APP_ENV}'
+            APP_SECRET: '${APP_SECRET}'
+            DATABASE_URL: 'mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_SERVER}/${DATABASE_NAME}?serverVersion=5.7'
+        ports:
+            - "${PHP_PORT}:9000"
+        depends_on:
+            - db
+        volumes:
+            - ./:/app:rw
+            - ./var/log/symfony:/app/var/log:cached
+
+    db:
+        container_name: 'LamodaPuzzle_db'
+        image: mysql
+        command: [ "--default-authentication-plugin=mysql_native_password" ]
+        ports:
+            -   "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_USER: ${DATABASE_USER}
+            MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+            MYSQL_DATABASE: ${DATABASE_NAME}
+
+    phpmyadmin:
+        container_name: 'LamodaPuzzle_pma'
+        image: phpmyadmin
+        environment:
+            PMA_HOST: db
+            PMA_ARBITRARY: 1
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_USER: ${DATABASE_USER}
+            MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+            PMA_USER: ${DATABASE_USER}
+            PMA_PASSWORD: ${DATABASE_PASSWORD}
+        restart: always
+        depends_on:
+            - db
+        ports:
+            - "8081:80"
