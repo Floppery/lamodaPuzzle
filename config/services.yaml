@@ -25,3 +25,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    sensio_framework_extra.view.listener:
+        alias: Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener
+
+    sensio_framework_extra.view.guesser:
+        alias: Sensio\Bundle\FrameworkExtraBundle\Templating\TemplateGuesser
+
+#    sensio_framework_extra.view.guesser:
+#        class: Sensio\Bundle\FrameworkExtraBundle\Templating\TemplateGuesser
+#        arguments: [ "@kernel" ]
+#        public: true

@@ -4,8 +4,7 @@ namespace App\Repository;
 
 use App\Entity\CargoItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method CargoItem|null find($id, $lockMode = null, $lockVersion = null)
@@ -15,7 +14,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class CargoItemRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CargoItem::class);
     }
@@ -24,33 +23,30 @@ class CargoItemRepository extends ServiceEntityRepository
      * Поиск товаров
      * @param null $repeat
      * @param null $title
-     * @return mixed
+     * @return array
      */
     public function findItem($repeat = null, $title = null): array
     {
-        // select DISTINCT(title), count(title) from cargo_item group by title  order by count(title);
         $qb = $this->createQueryBuilder('i')
             ->select('i.title')
             ->groupBy('i.title');
 
-        if (null !== $repeat) {
+        if (!empty($repeat)) {
             $qb
                 ->having('COUNT(i.title) = :repeat')
                 ->setParameter('repeat', $repeat);
         }
 
-        if (null !== $title) {
+        if (!empty($title)) {
             $qb
                 ->where('i.title IN (:title)')
                 ->setParameter('title', $title);
         }
 
         $result = $qb->getQuery()->getResult();
-        $result = array_map(static function ($a) {
+        return array_map(static function ($a) {
             return $a['title'];
         }, $result);
-
-        return $result;
     }
 
     /**
@@ -73,7 +69,6 @@ class CargoItemRepository extends ServiceEntityRepository
     /**
      * @param array|null $items
      * @return string|null
-     * @throws NonUniqueResultException
      */
     public function getCargoByMaxWeightOfUniqueItems(array $items = null): ?string
     {
@@ -83,11 +78,13 @@ class CargoItemRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->groupBy('i.cargo')
             ->orderBy('count(DISTINCT i.title) ', 'DESC');
+
         if (!empty($items)) {
             $qb->where('i.title IN (:items)')
                 ->setParameter('items', $items);
         }
 
-        return $qb->getQuery()->getSingleScalarResult();
+        $return = $qb->getQuery()->getResult();
+        return $return[0]['id'] ?? null;
     }
 }

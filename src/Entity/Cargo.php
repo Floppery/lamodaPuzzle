@@ -1,4 +1,5 @@
 <?php
+/** @noinspection PhpPropertyOnlyWrittenInspection */
 
 namespace App\Entity;
 
@@ -22,7 +23,7 @@ class Cargo
      * @Serializer\Expose
      * @Serializer\Groups({"cargo_details", "cargo_list"})
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @var string
@@ -30,15 +31,15 @@ class Cargo
      * @Serializer\Expose
      * @Serializer\Groups({"cargo_details", "cargo_list"})
      */
-    private $title;
+    private string $title;
 
     /**
-     * @var ArrayCollection|PersistentCollection|null
+     * @var object|ArrayCollection|PersistentCollection|null
      * @ORM\OneToMany(targetEntity="CargoItem", mappedBy="cargo", cascade={"persist", "remove"})
      * @Serializer\Expose
      * @Serializer\Groups({"cargo_details"})
      */
-    private $item;
+    private ?object $item;
 
     /**
      * Cargo constructor.

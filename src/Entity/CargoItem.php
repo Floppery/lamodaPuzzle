@@ -1,4 +1,5 @@
 <?php
+/** @noinspection PhpPropertyOnlyWrittenInspection */
 
 namespace App\Entity;
 
@@ -18,21 +19,21 @@ class CargoItem
      * @Serializer\Expose
      * @Serializer\Groups({"cargo_item_details", "cargo_item_list"})
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      * @Serializer\Expose
      * @Serializer\Groups({"cargo_item_details", "cargo_item_list"})
      */
-    private $title;
+    private ?string $title;
 
     /**
      * @var Cargo|null
      * @ORM\ManyToOne(targetEntity="Cargo", inversedBy="item")
      * @ORM\JoinColumn(name="cargo_id", referencedColumnName="id")
      */
-    protected $cargo;
+    protected ?Cargo $cargo;
 
     public function getId(): ?int
     {
@@ -67,7 +68,7 @@ class CargoItem
     }
 
     /**
-     * @param Cargo $cargo
+     * @param Cargo|null $cargo
      * @return CargoItem
      */
     public function setCargo(Cargo $cargo = null): self
